@@ -19,3 +19,19 @@ During test writing and exploration of the codebase, three primary bugs were ide
 * **Actual Behavior**: The code uses:
   ```javascript
   const getByStatus = (status) => tasks.filter((t) => t.status.includes(status));
+  ```
+  Because `.includes()` performs substring matching, searching for `status=do` returns tasks with status `todo` and `done`.
+* **How Discovered**: Code audit and unit testing status filtering.
+* **Suggested Fix**: Use strict equality:
+  ```javascript
+  const getByStatus = (status) => tasks.filter((t) => t.status === status);
+  ```
+
+---
+
+### Bug 3: `completeTask` Unconditionally Overwrote Priority to 'medium'
+* **File & Line**: `src/services/taskService.js` (Line 69)
+* **Expected Behavior**: Marking a task complete should update `status` to `'done'` and set `completedAt`, but leave the existing task `priority` intact.
+* **Actual Behavior**: The code explicitly had `priority: 'medium'`, resetting high-priority tasks to medium upon completion.
+* **How Discovered**: Caught by asserting that a completed high-priority task retains its `'high'` priority.
+* **Fix Applied**: Removed the hardcoded `priority: 'medium'` line from `completeTask`.
